@@ -1,0 +1,2 @@
+1、使用save_login_state.py生成chatgpt_session.json文件
+2、input_question.py文件读取这个文件进行登陆，然后输入文字并且获取响应
