@@ -42,7 +42,8 @@ async def save_chatgpt_login_state():
         print("🌐 正在导航到ChatGPT...")
         await page.goto("https://chatgpt.com/")
         
-        await asyncio.sleep(10)
+        # 等待90秒，让用户手动登录
+        await asyncio.sleep(90)
 
         # 保存登录状态
         session_file = "chatgpt_session.json"
