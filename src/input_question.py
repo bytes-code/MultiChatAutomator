@@ -85,40 +85,6 @@ class ChatGPTAutomation:
                     print(f"✅ 快速找到输入框: {selector}")
                     break
         
-        # 如果快速检查没找到，再用wait_for_selector等待
-        if not input_element:
-            print("⏳ 快速检查未找到，等待输入框出现...")
-            for selector in input_selectors:
-                try:
-                    input_element = await self.page.wait_for_selector(
-                        selector, 
-                        state="visible", 
-                        timeout=5000  # 每个选择器只等待5秒
-                    )
-                    if input_element:
-                        print(f"✅ 等待后找到输入框: {selector}")
-                        break
-                except:
-                    print(f"❌ 选择器失败: {selector}")
-                    continue
-        
-        if not input_element:
-            # 最后尝试：打印页面信息帮助调试
-            current_url = self.page.url
-            page_title = await self.page.title()
-            print(f"❌ 未找到输入框！")
-            print(f"当前URL: {current_url}")
-            print(f"页面标题: {page_title}")
-            
-            # 尝试截图保存（用于调试）
-            try:
-                await self.page.screenshot(path="debug_no_input.png")
-                print("📸 已保存调试截图: debug_no_input.png")
-            except:
-                pass
-                
-            raise Exception("未找到输入框，可能页面未完全加载或需要登录")
-        
         print(f"找到输入框，开始输入问题")
         await input_element.click()
         await input_element.fill("")
@@ -192,7 +158,6 @@ class ChatGPTAutomation:
             print(f"\n{'='*60}")
             print(f"📝 处理第 {i}/{total} 个问题")
             print(f"问题: {question}")
-            print(f"{'='*60}")
             
             try:
                 response = await self.send_message_and_get_response(question)
@@ -243,21 +208,6 @@ class ChatGPTAutomation:
         
         Returns:
             dict: 包含处理结果的字典
-            {
-                "success": True/False,
-                "total_questions": 10,
-                "successful_count": 8,
-                "failed_count": 2,
-                "results": [
-                    {
-                        "question_number": 1,
-                        "question": "问题内容",
-                        "response": "AI回复内容",
-                        "success": True
-                    },
-                    ...
-                ]
-            }
         """
         try:
             # 启动浏览器
@@ -312,55 +262,13 @@ async def main():
     
     # 定义10个品牌推荐相关的SEO问题
     questions = [
-        "2024年最值得购买的小米手机型号推荐有哪些？",
+        "2025年最值得购买的小米手机型号推荐有哪些？",
         "华为笔记本电脑哪款性价比最高？推荐理由是什么？",
-        "谷歌Pixel手机和苹果iPhone哪个更适合摄影爱好者？",
-        "苹果MacBook Pro和MacBook Air如何选择？哪款更值得买？",
-        "特斯拉Model 3和Model Y哪个更适合家庭用户？",
-        "亚马逊Echo智能音箱系列产品推荐，哪款功能最全？",
-        "微软Surface系列产品中哪款最适合商务办公？",
-        "字节跳动旗下抖音和今日头条哪个更适合品牌营销？",
-        "阿里巴巴云服务器和腾讯云哪个更适合中小企业？",
-        "Meta Quest VR设备值得购买吗？有什么优缺点？"
     ]
-    
-    print("🚀 开始使用ChatGPT批量提问API...")
-    print(f"📝 准备处理 {len(questions)} 个问题")
     
     # 调用API接口
     result = await chatgpt_batch_api(questions)
-    
-    # 处理API返回结果
-    if result['success']:
-        print("\n✅ API调用成功！")
-        print("\n" + "="*80)
-        print("📊 批量处理结果汇总")
-        print("="*80)
-        
-        print(f"总问题数: {result['total_questions']}")
-        print(f"成功处理: {result['successful_count']}")
-        print(f"处理失败: {result['failed_count']}")
-        print("-" * 80)
-        
-        # 显示每个问题的结果
-        for item in result['results']:
-            status = "✅ 成功" if item['success'] else "❌ 失败"
-            print(f"\n问题 {item['question_number']}: {item['question']}")
-            print(f"状态: {status}")
-            if item['success']:
-                print(f"回答: {item['response']}")
-            else:
-                print(f"错误: {item['response']}")
-            print("-" * 50)
-        
-        # 输出成功率统计
-        success_rate = (result['successful_count'] / result['total_questions']) * 100
-        print(f"\n📈 成功率: {success_rate:.1f}%")
-        
-    else:
-        print("\n❌ API调用失败！")
-        print(f"错误信息: {result.get('error', '未知错误')}")
-        print(f"失败问题数: {result['failed_count']}")
+    print(result)
     
     return result
 
